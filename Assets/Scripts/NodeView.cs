@@ -7,7 +7,7 @@ public class NodeView : MonoBehaviour
     public GameObject tile;
 
     [Range(0, 0.5f)]
-    public float borederSize = 0.15f;
+    public float borderSize = 0.15f;
 
     public void Init(Node node)
     {
@@ -15,7 +15,7 @@ public class NodeView : MonoBehaviour
         {
             gameObject.name = "Node (" + node.xIndex + "," + node.yIndex + ")";
             gameObject.transform.position = node.position;
-            tile.transform.localScale = new Vector3(1f - borederSize, 1f, 1f - borederSize);
+            tile.transform.localScale = new Vector3(1f - borderSize, 1f, 1f - borderSize);
         }
     }
 
