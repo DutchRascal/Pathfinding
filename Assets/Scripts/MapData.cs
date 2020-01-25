@@ -14,7 +14,7 @@ public class MapData : MonoBehaviour
     public Texture2D textureMap;
     public string resourcePath = "Mapdata";
 
-    private void Start()
+    private void Awake()
     {
         string levelName = SceneManager.GetActiveScene().name;
         if (textureMap == null)
