@@ -8,8 +8,11 @@ public class Graph : MonoBehaviour
     public List<Node> walls = new List<Node>();
 
     int[,] m_mapData;
-    int m_width,
-            m_height;
+    int
+        m_width,
+        m_height;
+    public int Width { get { return m_width; } }
+    public int Height { get { return m_height; } }
 
     public static readonly Vector2[] allDirections =
     {
