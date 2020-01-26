@@ -24,7 +24,6 @@ public class DemoController : MonoBehaviour
             {
                 graphView.Init(graph);
             }
-            print(startX + " " + startY);
             if (graph.IsWithinBounds(startX, startY) && graph.IsWithinBounds(goalX, goalY) && pathfinder != null)
             {
                 Node
