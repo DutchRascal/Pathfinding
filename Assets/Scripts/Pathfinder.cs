@@ -19,7 +19,9 @@ public class Pathfinder : MonoBehaviour
         goalColor = Color.red,
         frontierColor = Color.magenta,
         exploredColor = Color.gray,
-        pathColor = Color.cyan;
+        pathColor = Color.cyan,
+        arrowColor = new Color32(216, 216, 216, 255),
+        highlightColor = new Color32(255, 255, 128, 255);
     public bool isComplete = false;
     int m_iterations = 0;
 
@@ -83,6 +85,11 @@ public class Pathfinder : MonoBehaviour
             graphView.ColorNodes(m_exploreNodes, exploredColor);
         }
 
+        if (m_pathNodes != null && m_pathNodes.Count > 0)
+        {
+            graphView.ColorNodes(m_pathNodes, pathColor);
+        }
+
         NodeView startNodeView = graphView.nodeViews[start.xIndex, start.yIndex];
 
         if (startNodeView != null)
@@ -115,11 +122,22 @@ public class Pathfinder : MonoBehaviour
 
                 }
                 ExpandFrontier(currentNode);
+
+                if (m_frontierNodes.Contains(m_goalNode))
+                {
+                    m_pathNodes = GetpathNodes(m_goalNode);
+                }
+
                 ShowColors();
 
                 if (m_graphView != null)
                 {
-                    m_graphView.ShowNodeArrows(m_frontierNodes.ToList());
+                    m_graphView.ShowNodeArrows(m_frontierNodes.ToList(), arrowColor);
+
+                    if (m_frontierNodes.Contains(m_goalNode))
+                    {
+                        m_graphView.ShowNodeArrows(m_pathNodes, highlightColor);
+                    }
                 }
 
                 yield return new WaitForSeconds(timeStep);
@@ -127,7 +145,6 @@ public class Pathfinder : MonoBehaviour
             else
             {
                 isComplete = true;
-                print("Completed");
             }
         }
     }
@@ -145,5 +162,23 @@ public class Pathfinder : MonoBehaviour
                 }
             }
         }
+    }
+
+    List<Node> GetpathNodes(Node endNode)
+    {
+        List<Node> path = new List<Node>();
+        if (endNode == null)
+        {
+            return path;
+        }
+        path.Add(endNode);
+        Node currentNode = endNode.previous;
+        while (currentNode != null)
+        {
+            path.Insert(0, currentNode);
+
+            currentNode = currentNode.previous;
+        }
+        return path;
     }
 }
