@@ -17,6 +17,7 @@ public class Node
     public Vector3 position;
     public List<Node> neighbors = new List<Node>();
     public Node previous = null;
+    public float distanceTraveled = Mathf.Infinity;
 
     public Node(int xIndex, int yIndex, NodeType nodeType)
     {
@@ -28,5 +29,19 @@ public class Node
     public void Reset()
     {
         previous = null;
+    }
+
+    public float GetNodeDistance(Node source, Node target)
+    {
+        int dx = Mathf.Abs(source.xIndex - target.xIndex);
+        int dy = Mathf.Abs(source.yIndex - target.yIndex);
+
+        int min = Mathf.Min(dx, dy);
+        int max = Mathf.Max(dx, dy);
+
+        int diagonalSteps = min;
+        int straightSteps = max - min;
+
+        return (1.4f * diagonalSteps + straightSteps);
     }
 }
