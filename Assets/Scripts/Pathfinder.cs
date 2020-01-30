@@ -30,6 +30,14 @@ public class Pathfinder : MonoBehaviour
         exitOnGoal = true;
     int m_iterations = 0;
 
+    public enum Mode
+    {
+        BreadthfirstSearch = 0,
+        Dijkstra = 1
+    }
+
+    public Mode mode = Mode.BreadthfirstSearch;
+
     public void Init(Graph graph, GraphView graphView, Node start, Node goal)
     {
         if (start == null || goal == null || graph == null || graphView == null)
@@ -66,6 +74,7 @@ public class Pathfinder : MonoBehaviour
 
         isComplete = false;
         m_iterations = 0;
+        m_startNode.distanceTraveled = 0;
     }
 
     void ShowColors()
@@ -128,7 +137,14 @@ public class Pathfinder : MonoBehaviour
                     m_exploreNodes.Add(currentNode);
 
                 }
-                ExpandFrontier(currentNode);
+                if (mode == Mode.BreadthfirstSearch)
+                {
+                    ExpandFrontierBreadthFirst(currentNode);
+                }
+                else if (mode == Mode.Dijkstra)
+                {
+                    ExpandFrontierDijkstra(currentNode);
+                }
 
                 if (m_frontierNodes.Contains(m_goalNode))
                 {
@@ -136,6 +152,7 @@ public class Pathfinder : MonoBehaviour
                     if (exitOnGoal)
                     {
                         isComplete = true;
+                        Debug.Log("PATHFINDER mode:" + mode.ToString() + " path length= " + m_goalNode.distanceTraveled.ToString());
                     }
                 }
 
@@ -173,7 +190,7 @@ public class Pathfinder : MonoBehaviour
         }
     }
 
-    void ExpandFrontier(Node node)
+    void ExpandFrontierBreadthFirst(Node node)
     {
         if (node != null)
         {
@@ -181,6 +198,9 @@ public class Pathfinder : MonoBehaviour
             {
                 if (!m_exploreNodes.Contains(node.neighbors[i]) && !m_frontierNodes.Contains(node.neighbors[i]))
                 {
+                    float distanceToNeighbor = m_goalNode.GetNodeDistance(node, node.neighbors[i]);
+                    float newDistanceTraveled = distanceToNeighbor + node.distanceTraveled;
+                    node.neighbors[i].distanceTraveled = newDistanceTraveled;
                     node.neighbors[i].previous = node;
                     m_frontierNodes.Enqueue(node.neighbors[i]);
                 }
@@ -188,6 +208,29 @@ public class Pathfinder : MonoBehaviour
         }
     }
 
+    void ExpandFrontierDijkstra(Node node)
+    {
+        if (node != null)
+        {
+            for (int i = 0; i < node.neighbors.Count; i++)
+            {
+                if (!m_exploreNodes.Contains(node.neighbors[i]))
+                {
+                    float distanceToNeighbor = m_goalNode.GetNodeDistance(node, node.neighbors[i]);
+                    float newDistanceTraveled = distanceToNeighbor + node.distanceTraveled;
+                    if (float.IsPositiveInfinity(node.neighbors[i].distanceTraveled) || newDistanceTraveled < node.neighbors[i].distanceTraveled)
+                    {
+                        node.neighbors[i].previous = node;
+                        node.neighbors[i].distanceTraveled = newDistanceTraveled;
+                    }
+                    if (!m_frontierNodes.Contains(node.neighbors[i]))
+                    {
+                        m_frontierNodes.Enqueue(node.neighbors[i]);
+                    }
+                }
+            }
+        }
+    }
     List<Node> GetpathNodes(Node endNode)
     {
         List<Node> path = new List<Node>();

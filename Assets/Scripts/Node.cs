@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,16 +9,18 @@ public enum NodeType
     Blocked = 1
 }
 
-public class Node
+public class Node : IComparable<Node>
 {
     public NodeType nodeType = NodeType.Open;
     public int
         xIndex = -1,
-        yIndex = -1;
+        yIndex = -1,
+        priority;
     public Vector3 position;
     public List<Node> neighbors = new List<Node>();
     public Node previous = null;
     public float distanceTraveled = Mathf.Infinity;
+
 
     public Node(int xIndex, int yIndex, NodeType nodeType)
     {
@@ -43,5 +46,21 @@ public class Node
         int straightSteps = max - min;
 
         return (1.4f * diagonalSteps + straightSteps);
+    }
+
+    public int CompareTo(Node other)
+    {
+        if (this.priority < other.priority)
+        {
+            return -1;
+        }
+        else if (this.priority > other.priority)
+        {
+            return 1;
+        }
+        else
+        {
+            return 0;
+        }
     }
 }
