@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -132,5 +133,15 @@ public class MapData : MonoBehaviour
         terrainLookupTable.Add(lightTerrainColor, NodeType.LightTerrain);
         terrainLookupTable.Add(mediumTerrainColor, NodeType.MediumTerrain);
         terrainLookupTable.Add(heavyTerrainColor, NodeType.HeavyTerrain);
+    }
+
+    public static Color GetColorFromNodeType(NodeType nodeType)
+    {
+        if (terrainLookupTable.ContainsValue(nodeType))
+        {
+            Color colorKey = terrainLookupTable.FirstOrDefault(x => x.Value == nodeType).Key;
+            return colorKey;
+        }
+        return Color.white;
     }
 }

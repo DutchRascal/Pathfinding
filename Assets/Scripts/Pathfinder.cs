@@ -77,12 +77,12 @@ public class Pathfinder : MonoBehaviour
         m_startNode.distanceTraveled = 0;
     }
 
-    void ShowColors()
+    void ShowColors(bool lerpColor = false, float lerpValue = 0.5f)
     {
-        ShowColors(m_graphView, m_startNode, m_goalNode);
+        ShowColors(m_graphView, m_startNode, m_goalNode, lerpColor, lerpValue);
     }
 
-    private void ShowColors(GraphView graphView, Node start, Node goal)
+    private void ShowColors(GraphView graphView, Node start, Node goal, bool lerpColor = false, float lerpValue = 0.5f)
     {
         if (graphView == null || start == null || goal == null)
         {
@@ -91,17 +91,17 @@ public class Pathfinder : MonoBehaviour
 
         if (m_frontierNodes != null)
         {
-            graphView.ColorNodes(m_frontierNodes.ToList(), frontierColor);
+            graphView.ColorNodes(m_frontierNodes.ToList(), frontierColor, lerpColor, lerpValue);
         }
 
         if (m_exploreNodes != null)
         {
-            graphView.ColorNodes(m_exploreNodes, exploredColor);
+            graphView.ColorNodes(m_exploreNodes, exploredColor, lerpColor, lerpValue);
         }
 
         if (m_pathNodes != null && m_pathNodes.Count > 0)
         {
-            graphView.ColorNodes(m_pathNodes, pathColor);
+            graphView.ColorNodes(m_pathNodes, pathColor, lerpColor, lerpValue * 2f);
         }
 
         NodeView startNodeView = graphView.nodeViews[start.xIndex, start.yIndex];
@@ -158,7 +158,7 @@ public class Pathfinder : MonoBehaviour
 
                 if (showIterations)
                 {
-                    ShowDiagnostics();
+                    ShowDiagnostics(true, 0.5f);
 
                     yield return new WaitForSeconds(timeStep);
                 }
@@ -168,15 +168,15 @@ public class Pathfinder : MonoBehaviour
                 isComplete = true;
             }
         }
-        ShowDiagnostics();
+        ShowDiagnostics(true, 0.5f);
         Debug.Log("PATHFINDER SearchRoutine: elapse time = " + (Time.time - timeStart).ToString() + " seconds");
     }
 
-    private void ShowDiagnostics()
+    private void ShowDiagnostics(bool lerpColor = false, float lerpValue = 0.5f)
     {
         if (showColors)
         {
-            ShowColors();
+            ShowColors(lerpColor, lerpValue);
         }
 
         if (m_graphView != null && showArrows)
@@ -199,7 +199,8 @@ public class Pathfinder : MonoBehaviour
                 if (!m_exploreNodes.Contains(node.neighbors[i]) && !m_frontierNodes.Contains(node.neighbors[i]))
                 {
                     float distanceToNeighbor = m_goalNode.GetNodeDistance(node, node.neighbors[i]);
-                    float newDistanceTraveled = distanceToNeighbor + node.distanceTraveled;
+                    float newDistanceTraveled = distanceToNeighbor + node.distanceTraveled + (int)node.nodeType;
+
                     node.neighbors[i].distanceTraveled = newDistanceTraveled;
                     node.neighbors[i].previous = node;
                     node.neighbors[i].priority = m_exploreNodes.Count;
@@ -218,7 +219,7 @@ public class Pathfinder : MonoBehaviour
                 if (!m_exploreNodes.Contains(node.neighbors[i]))
                 {
                     float distanceToNeighbor = m_goalNode.GetNodeDistance(node, node.neighbors[i]);
-                    float newDistanceTraveled = distanceToNeighbor + node.distanceTraveled;
+                    float newDistanceTraveled = distanceToNeighbor + node.distanceTraveled + (int)node.nodeType;
                     if (float.IsPositiveInfinity(node.neighbors[i].distanceTraveled) || newDistanceTraveled < node.neighbors[i].distanceTraveled)
                     {
                         node.neighbors[i].previous = node;
