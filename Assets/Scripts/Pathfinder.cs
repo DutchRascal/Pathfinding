@@ -33,7 +33,8 @@ public class Pathfinder : MonoBehaviour
     public enum Mode
     {
         BreadthfirstSearch = 0,
-        Dijkstra = 1
+        Dijkstra = 1,
+        GreedyBestFirst = 2
     }
 
     public Mode mode = Mode.BreadthfirstSearch;
@@ -145,6 +146,10 @@ public class Pathfinder : MonoBehaviour
                 {
                     ExpandFrontierDijkstra(currentNode);
                 }
+                else if (mode == Mode.GreedyBestFirst)
+                {
+                    ExpandFrontierGreedyBestFirst(currentNode);
+                }
 
                 if (m_frontierNodes.Contains(m_goalNode))
                 {
@@ -152,7 +157,7 @@ public class Pathfinder : MonoBehaviour
                     if (exitOnGoal)
                     {
                         isComplete = true;
-                        Debug.Log("PATHFINDER mode:" + mode.ToString() + " path length= " + m_goalNode.distanceTraveled.ToString());
+                        Debug.Log(name.ToUpper() + " mode:" + mode.ToString() + " path length= " + m_goalNode.distanceTraveled.ToString());
                     }
                 }
 
@@ -169,7 +174,7 @@ public class Pathfinder : MonoBehaviour
             }
         }
         ShowDiagnostics(true, 0.5f);
-        Debug.Log("PATHFINDER SearchRoutine: elapse time = " + (Time.time - timeStart).ToString() + " seconds");
+        Debug.Log(name.ToUpper() + " SearchRoutine: elapse time = " + (Time.time - timeStart).ToString() + " seconds");
     }
 
     private void ShowDiagnostics(bool lerpColor = false, float lerpValue = 0.5f)
@@ -198,7 +203,7 @@ public class Pathfinder : MonoBehaviour
             {
                 if (!m_exploreNodes.Contains(node.neighbors[i]) && !m_frontierNodes.Contains(node.neighbors[i]))
                 {
-                    float distanceToNeighbor = m_goalNode.GetNodeDistance(node, node.neighbors[i]);
+                    float distanceToNeighbor = m_graph.GetNodeDistance(node, node.neighbors[i]);
                     float newDistanceTraveled = distanceToNeighbor + node.distanceTraveled + (int)node.nodeType;
 
                     node.neighbors[i].distanceTraveled = newDistanceTraveled;
@@ -218,7 +223,7 @@ public class Pathfinder : MonoBehaviour
             {
                 if (!m_exploreNodes.Contains(node.neighbors[i]))
                 {
-                    float distanceToNeighbor = m_goalNode.GetNodeDistance(node, node.neighbors[i]);
+                    float distanceToNeighbor = m_graph.GetNodeDistance(node, node.neighbors[i]);
                     float newDistanceTraveled = distanceToNeighbor + node.distanceTraveled + (int)node.nodeType;
                     if (float.IsPositiveInfinity(node.neighbors[i].distanceTraveled) || newDistanceTraveled < node.neighbors[i].distanceTraveled)
                     {
@@ -234,6 +239,31 @@ public class Pathfinder : MonoBehaviour
             }
         }
     }
+
+    void ExpandFrontierGreedyBestFirst(Node node)
+    {
+        if (node != null)
+        {
+            for (int i = 0; i < node.neighbors.Count; i++)
+            {
+                if (!m_exploreNodes.Contains(node.neighbors[i]) && !m_frontierNodes.Contains(node.neighbors[i]))
+                {
+                    float distanceToNeighbor = m_graph.GetNodeDistance(node, node.neighbors[i]);
+                    float newDistanceTraveled = distanceToNeighbor + node.distanceTraveled + (int)node.nodeType;
+
+                    node.neighbors[i].distanceTraveled = newDistanceTraveled;
+                    node.neighbors[i].previous = node;
+                    if (m_graph != null)
+                    {
+                        node.neighbors[i].priority = (int)m_graph.GetNodeDistance(node.neighbors[i], m_goalNode);
+                    }
+
+                    m_frontierNodes.Enqueue(node.neighbors[i]);
+                }
+            }
+        }
+    }
+
     List<Node> GetpathNodes(Node endNode)
     {
         List<Node> path = new List<Node>();
@@ -251,4 +281,5 @@ public class Pathfinder : MonoBehaviour
         }
         return path;
     }
+
 }
