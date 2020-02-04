@@ -17,8 +17,8 @@ public class Node : IComparable<Node>
     public NodeType nodeType = NodeType.Open;
     public int
         xIndex = -1,
-        yIndex = -1,
-        priority;
+        yIndex = -1;
+    public float priority;
     public Vector3 position;
     public List<Node> neighbors = new List<Node>();
     public Node previous = null;
